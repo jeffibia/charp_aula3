@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\msft83\\jibiapino\\aula3\\charp_aula3\\JewelCollector\\JewelCollector.csproj",
+      "projectUniqueName": "c:\\Users\\msft83\\jibiapino\\aula3new\\charp_aula3\\JewelCollector\\JewelCollector.csproj",
       "projectName": "JewelCollector",
-      "projectPath": "C:\\Users\\msft83\\jibiapino\\aula3\\charp_aula3\\JewelCollector\\JewelCollector.csproj",
+      "projectPath": "c:\\Users\\msft83\\jibiapino\\aula3new\\charp_aula3\\JewelCollector\\JewelCollector.csproj",
       "packagesPath": "C:\\Users\\msft83\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\msft83\\jibiapino\\aula3\\charp_aula3\\JewelCollector\\obj\\",
+      "outputPath": "c:\\Users\\msft83\\jibiapino\\aula3new\\charp_aula3\\JewelCollector\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\msft83\\AppData\\Roaming\\NuGet\\NuGet.Config"

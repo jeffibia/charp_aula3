@@ -56,19 +56,10 @@ public class Map
                     type = type.Substring(type.LastIndexOf('.') + 1);
                     if (type.Equals("Jewel")){
                         jewel = (Jewel) map[i,j];
-                        switch (jewel.getType()){
-                            case "Red":
-                            Console.Write("JR  ");
+                       
+                            Console.Write(jewel.getCharp());
                             break;
-                            case "Green":
-                            Console.Write("JG  ");
-                            break;
-                            case "Blue":
-                            Console.Write("JB  ");
-                            break;
-                            default:
-                            break;
-                        }
+                        
                     }
                     else if (type.Equals("Obstacle")){
                         obstacle = (Obstacle) map[i,j];
