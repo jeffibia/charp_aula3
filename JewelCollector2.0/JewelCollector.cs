@@ -5,46 +5,64 @@ namespace JewelCollector2._0;
 /// </summary>
 public class JewelCollector
 {     
+    delegate void moveRobot(int x, int y);
+    delegate void collectItems(Boolean g);
+    delegate void printBag();
+    static event moveRobot OnMoveRobot;
+    static event collectItems OnCollectItems;
+    static event printBag OnPrintBag;
     static void Main(){
-        int phase = 1;
+        int lvl = 1;
         int dimension = 10;
-        Map m = new Map(dimension,dimension);
-        Robot r = new Robot(m);
         int jr = 2;
         int jg = 2;
         int jb = 2;
         int wt = 7;
         int tr = 5;
         int rd = 0;
-        string command = "";
-
-        m.addItem(0,0,r);
-        startPhase(phase,m,jr,jg,jb,wt,tr,rd);
         bool running = true;
+        // Start Game
+        Map m = new Map(dimension,dimension);
+        Robot r = new Robot(m);
+        m.addItem(0,0,r);
+        OnMoveRobot += r.moveRobot;
+        OnCollectItems += r.collectItems;
+        OnPrintBag += r.printBag;
+        loadMap(lvl,m,jr,jg,jb,wt,tr,rd);
         do {
             Console.Clear();            
             m.printMap();
             r.printStatus();
 
+            // You lost
             if (r.getEnergy() <= 0) {
                 Console.WriteLine("Game over! Please try again...[y/n]");
-                command = Console.ReadLine();
-                if (command.Equals("y") || command.Equals("Y")){
+                ConsoleKeyInfo entered1 = Console.ReadKey(true);
+                if (entered1.Key.ToString().Equals("Y")){
+                    OnMoveRobot -= r.moveRobot;
+                    OnCollectItems -= r.collectItems;
+                    OnPrintBag -= r.printBag;
+                    // Restart game
                     m = new Map(dimension,dimension);
                     r = new Robot(m);
                     m.addItem(0,0,r);
-                    startPhase(phase,m,jr,jg,jb,wt,tr,rd);
+                    OnMoveRobot += r.moveRobot;
+                    OnCollectItems += r.collectItems;
+                    OnPrintBag += r.printBag;
+                    loadMap(lvl,m,jr,jg,jb,wt,tr,rd);
                     continue;
                 } 
                 else break;
             }
+
+            // You won
             if (r.totalJewels() == (jr+jg+jb)){
-                Console.WriteLine("You Won! Hit ENTER to continue...");
-                Console.ReadLine();
-                phase++;
+                Console.WriteLine("You Won! Hit ENTER to play next level...");
+                Console.ReadLine(); 
+                lvl++;               
                 dimension++;
                 if (dimension > 30){
-                    Console.WriteLine("Congratulations! You have completed all phases!");
+                    Console.WriteLine("Congratulations! You have completed all levels!");
                     break;
                 }
                 jr++;
@@ -53,43 +71,67 @@ public class JewelCollector
                 wt++;
                 tr++;
                 rd++;
+                OnMoveRobot -= r.moveRobot;
+                OnCollectItems -= r.collectItems;
+                OnPrintBag -= r.printBag;
+                // Start next level
                 m = new Map(dimension,dimension);
                 r = new Robot(m);
                 m.addItem(0,0,r);
-                startPhase(phase,m,jr,jg,jb,wt,tr,rd);
+                OnMoveRobot += r.moveRobot;
+                OnCollectItems += r.collectItems;
+                OnPrintBag += r.printBag;   
+                loadMap(lvl,m,jr,jg,jb,wt,tr,rd);
                 continue;
             }
-  
-            Console.WriteLine("Enter the command: w,a,s,d,g,p,help,quit...");
-            command = Console.ReadLine();
-            try{  
-                if (command.Equals("quit")) {
-                    running = false;
-                } else if (command.Equals("w")) {
-                    r.moveRobot(r.getPosx()-1,r.getPosy());              
-                } else if (command.Equals("a")) {
-                    r.moveRobot(r.getPosx(),r.getPosy()-1);  
-                } else if (command.Equals("s")) {
-                    r.moveRobot(r.getPosx()+1,r.getPosy());             
-                } else if (command.Equals("d")) {
-                    r.moveRobot(r.getPosx(),r.getPosy()+1); 
-                } else if (command.Equals("g")) {  
-                    r.collectItems();         
-                } else if (command.Equals("p")) {  
-                    r.printBag();         
-                } else if (command.Equals("help")){
-                    Console.WriteLine("");
-                    Console.WriteLine("=================================================");
-                    Console.WriteLine("****                Help                     ****");
-                    Console.WriteLine("=================================================");
-                    Console.WriteLine("w: move up");
-                    Console.WriteLine("a: move left");
-                    Console.WriteLine("s: move down");
-                    Console.WriteLine("d: move right");
-                    Console.WriteLine("g: collect jewels/energy");
-                    Console.WriteLine("p: print bag");
-                    Console.WriteLine("ME cannot occupy cells with ##,$$,JR,JG,JB labels");
-                    Console.ReadLine();
+
+            // Play  
+            Console.WriteLine("Enter the command: w,a,s,d,g,p,(h)elp,(q)uit...");
+            ConsoleKeyInfo entered = Console.ReadKey(true);
+
+            try{
+                switch (entered.Key.ToString())
+                {
+                    case "W":
+                        OnMoveRobot(r.getPosx()-1,r.getPosy());
+                        break;
+                    case "A":
+                        OnMoveRobot(r.getPosx(),r.getPosy()-1); 
+                        break;
+                    case "S":
+                        OnMoveRobot(r.getPosx()+1,r.getPosy());
+                        break;
+                    case "D":
+                        OnMoveRobot(r.getPosx(),r.getPosy()+1); 
+                        break;
+                    case "G": 
+                        OnCollectItems(true); 
+                        break;
+                    case "P":
+                        OnPrintBag();
+                        break;
+                    case "H":
+                        Console.WriteLine("");
+                        Console.WriteLine("=================================================");
+                        Console.WriteLine("****                Help                     ****");
+                        Console.WriteLine("=================================================");
+                        Console.WriteLine("w: move up");
+                        Console.WriteLine("a: move left");
+                        Console.WriteLine("s: move down");
+                        Console.WriteLine("d: move right");
+                        Console.WriteLine("g: collect jewels/energy");
+                        Console.WriteLine("p: print bag");
+                        Console.WriteLine("ME cannot occupy cells with [##,$$,JR,JG,JB] labels");
+                        Console.WriteLine("Hit ENTER to continue...");
+                        Console.ReadLine();
+                        break;
+                    case "Q": 
+                        running = false;
+                        break;
+                    default: 
+                        Console.WriteLine("Invalid option entered...Hit ENTER to continue...");
+                        Console.ReadLine(); 
+                        break;
                 }
             }
             catch(Exception e){
@@ -99,8 +141,19 @@ public class JewelCollector
             }            
       } while (running);
     }
-    private static void startPhase(int p,Map map,int red,int green,int blue,int water,int tree,int radio){
-        if (p == 1){
+    /// <summary>
+    /// This private method loads items into the map, either fixed for level 1, or randomly for next levels
+    /// </summary>
+    /// <param name="level">Game level</param>
+    /// <param name="map">Map</param>
+    /// <param name="red">Number of Red Jewels</param>
+    /// <param name="green">Number of Green Jewels</param>
+    /// <param name="blue">Number of Blue Jewels</param>
+    /// <param name="water">Number of Water instances</param>
+    /// <param name="tree">Number of Tree instances</param>
+    /// <param name="radio">Number of Radioactive instances</param>
+    private static void loadMap(int level,Map map,int red,int green,int blue,int water,int tree,int radio){
+        if (level == 1){
             map.addItem(1,9,new Jewel("Red"));
             map.addItem(8,8,new Jewel("Red"));
             map.addItem(9,1,new Jewel("Green"));
@@ -125,11 +178,11 @@ public class JewelCollector
             Boolean populated = false;
             int x = 0;
             int y = 0;
-            string type = "";
+            string? type = "";
             while(!populated){
-                x = num.Next(0,map.GetLength(0));
-                y = num.Next(0,map.GetLength(1));
-                type = map.readItem(x,y).ToString()+"";
+                x = num.Next(0,map.getLength(0));
+                y = num.Next(0,map.getLength(1));
+                type = map.readItem(x,y).ToString();
                 if (type.Equals("--")){
                     if (red > 0){
                         map.addItem(x,y,new Jewel("Red"));
@@ -161,9 +214,9 @@ public class JewelCollector
                         radio--;
                         continue;
                     }
+                    break;
                 }
-                else continue;
-                break;                
+                else continue;                
             }
         }              
     }

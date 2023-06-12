@@ -1,69 +1,44 @@
 namespace JewelCollector2._0;
 /// <summary>
-/// This Obstacle class represents an obstacle object that implements cell interface
+/// This Obstacle class represents an obstacle object on the map
 /// </summary>
 public class Obstacle : Cell
 {
-    private int posx;
-    private int posy;
-    private string label;
+    private int energy;
     /// <summary>
     /// This constructor initializes an obstacle object
     /// </summary>
     /// <param name="t">Obstacle type: Water, Tree, Radioactive</param>
-    public Obstacle(string t){
-        posx = -1;
-        posy = -1;
-        label = "";
+    public Obstacle(string t) : base(""){
+        energy = 0;
         switch(t){
             case "Water":
-                label = "##";
+                this.label = "##";
                 break;
             case "Tree":
-                label = "$$";
+                this.label = "$$";
+                energy = 3;
                 break;
             case "Radioactive":
-                label = "!!";
+                this.label = "!!";
                 break;
-            default:
-                throw new Exception("Invalid Obstacle Type!");
         }
     }
     /// <summary>
-    /// This method sets Obstacle X axis
+    /// This method gets obstacle energy
     /// </summary>
-    /// <param name="x">Obstacle X axis</param>
-    public void setPosx(int x){
-        posx = x;
-        return;
+    /// <returns>Obstacle energy</returns>
+    public int getEnergy(){
+        int e = energy;
+        energy = 0;
+        return e;
     }
     /// <summary>
-    /// This method sets Obstacle Y axis
+    /// This method returns if obstacle has energy
     /// </summary>
-    /// <param name="y">Obstacle Y axis</param>
-    public void setPosy(int y){
-        posy = y;
-        return;
-    }
-    /// <summary>
-    /// This method gets Obstacle X axis
-    /// </summary>
-    /// <returns>Obstacle X axis</returns>
-    public int getPosx(){
-        return posx;
-    }
-    /// <summary>
-    /// This method gets Obstacle Y axis
-    /// </summary>
-    /// <returns>Obstacle Y axis</returns>
-    public int getPosy(){
-        return posy;
-    }
-    /// <summary>
-    /// This method gets Obstacle label
-    /// </summary>
-    /// <returns>Obstacle label</returns>
-    public override string ToString(){
-        return label;
+    /// <returns>True or false</returns>
+    public Boolean hasEnergy(){
+        if (energy > 0) return true;
+        else return false;
     }
 }

@@ -1,27 +1,22 @@
 namespace JewelCollector2._0;
 /// <summary>
-/// This Cell interface can be implemented by any object with X and Y axis
+/// This abstract Cell class represents an object on the map
 /// </summary>
-public interface Cell
+public abstract class Cell
 {
+    private protected string label;
     /// <summary>
-    /// This method sets object's X axis
+    /// This constructor sets the object label
     /// </summary>
-    /// <param name="x">Object's X axis</param>
-    public void setPosx(int x);
+    /// <param name="l">Object label</param>
+    public Cell(string l){
+        this.label = l;
+    }
     /// <summary>
-    /// This method sets object's Y axis
+    /// This method overrides ToString method to return object label
     /// </summary>
-    /// <param name="y">Object's Y axis</param>
-    public void setPosy(int y);
-    /// <summary>
-    /// This method gets object's X axis
-    /// </summary>
-    /// <returns>Returns object's X axis</returns>
-    public int getPosx();
-    /// <summary>
-    /// This method gets object's Y axis
-    /// </summary>
-    /// <returns>Returns object's Y axis</returns>
-    public int getPosy();
+    /// <returns>Object label</returns>
+    public override string ToString(){
+        return label;
+    }
 }

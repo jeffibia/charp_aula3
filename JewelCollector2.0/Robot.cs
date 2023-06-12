@@ -2,44 +2,27 @@ using System;
 using System.Collections;
 namespace JewelCollector2._0;
 /// <summary>
-/// This class Robot represents a Robot object that implements cell interface
+/// This class Robot represents a robot object on the map
 /// </summary>
 public class Robot : Cell
 {
     private int posx;
-    private int posy;   
-    private string label;
+    private int posy;
     private int energy;
     private ArrayList bag;
-    private int totalvalue;
+    private int totalpoints;
     private Map m;
     /// <summary>
     /// This constructor initializes a Robot object
     /// </summary>   
-    public Robot(Map map){
-        posx = -1;
-        posy = -1;
-        label = "ME";
+    public Robot(Map map) : base(""){
+        posx = 0;
+        posy = 0;
+        this.label = "ME";
         energy = 5;
         bag = new ArrayList();       
-        totalvalue = 0;
+        totalpoints = 0;
         m = map;       
-    }
-    /// <summary>
-    /// This method sets Robot X axis
-    /// </summary>
-    /// <param name="x">Robot X axis</param>
-    public void setPosx(int x){
-        posx = x;
-        return;
-    }
-    /// <summary>
-    /// This method sets Robot Y axis
-    /// </summary>
-    /// <param name="y">Robot Y axis</param>
-    public void setPosy(int y){
-        posy = y;
-        return;
     }
     /// <summary>
     /// This method gets Robot X axis
@@ -56,13 +39,6 @@ public class Robot : Cell
         return posy;
     }
     /// <summary>
-    /// This method gets Robot label
-    /// </summary>
-    /// <returns>Robot label</returns>
-    public override string ToString(){
-        return label;
-    }
-    /// <summary>
     /// This method gets Robot energy
     /// </summary>
     /// <returns>Robot energy</returns>
@@ -70,13 +46,7 @@ public class Robot : Cell
         return energy;
     }
     /// <summary>
-    /// This method prints Robot status: Bag count, Bag totalvalue, Energy
-    /// </summary>
-    public void printStatus (){
-        Console.WriteLine("Bag total items: "+bag.Count+" | Bag total value: "+totalvalue+" | Energy: "+energy);
-    }
-    /// <summary>
-    /// This method prints Robot bag items
+    /// This method prints Robot bag jewels
     /// </summary>
     public void printBag (){
         Console.WriteLine("Your Bag have(has) the following jewel(s):");
@@ -95,6 +65,12 @@ public class Robot : Cell
         return;
     }
     /// <summary>
+    /// This method prints Robot status: Bag count, Bag totalpoints, Energy
+    /// </summary>
+    public void printStatus (){
+        Console.WriteLine("Bag total jewels: "+bag.Count+" | Bag total value: "+totalpoints+" | Energy: "+energy);
+    }
+    /// <summary>
     /// This method gets total number of collected jewels
     /// </summary>
     /// <returns>Total number of collected jewels</returns>
@@ -102,24 +78,28 @@ public class Robot : Cell
         return bag.Count;
     }
     /// <summary>
-    /// This method moves Robot to a valid adjacent cell on the map 
+    /// This method moves Robot to a valid adjacent position on the map 
     /// </summary>
     /// <param name="x">New Robot X axis value</param>
     /// <param name="y">New Robot Y axis value</param>
     public void moveRobot(int x, int y){
-        if (((x >= 0) && (x < m.GetLength(0))) && ((y >= 0) && (y < m.GetLength(1)))){
-            Cell item = m.readItem(x,y);
-            string type = item.ToString()+"";
+        Cell? item;
+        string? type;
+        if (((x >= 0) && (x < m.getLength(0))) && ((y >= 0) && (y < m.getLength(1)))){
+            item = m.readItem(x,y);
+            type = item.ToString();
             if (type.Equals("--") || type.Equals("!!")){
                 if (type.Equals("--")){
                     energy--;
                 }
                 else{
-                    energy = energy - 30;
+                    energy -= 30;
                 }
                 item = m.delItem(posx,posy);
                 m.addItem(x,y,item);
-                checkAdjCells();
+                posx = x;
+                posy = y;
+                collectItems(false);
             }
             else{
                 throw new Exception("Invalid move! You can't occupy this object position...");
@@ -131,71 +111,53 @@ public class Robot : Cell
         return;
     }
     /// <summary>
-    /// This method collects objects or recharge Robot from adjacent cells on the map
+    /// This method reads robot adjacent items and process them
     /// </summary>
-    public void collectItems(){
-        Cell[] adjList = new Cell[4];
-        int qty = 0;
+    /// <param name="grab">Grab jewels/recharge robot (true) or check radioactive items (false)</param>
+    public void collectItems(Boolean g){
+        Cell? item;
         if ((posx-1) >= 0){
-            adjList[qty] = m.readItem(posx-1,posy);
-            qty++;
+            item = m.readItem(posx-1,posy);
+            if (g) grab(item,posx-1,posy);
+            else if (item.ToString().Equals("!!")) energy -= 10;
         }
         if ((posy-1) >= 0){
-            adjList[qty] = m.readItem(posx,posy-1);
-            qty++;
+            item = m.readItem(posx,posy-1);
+            if (g) grab(item,posx,posy-1);
+            else if (item.ToString().Equals("!!")) energy -= 10;
         }        
-        if ((posx+1) < m.GetLength(0)){
-            adjList[qty] = m.readItem(posx+1,posy);
-            qty++;
+        if ((posx+1) < m.getLength(0)){
+            item = m.readItem(posx+1,posy);
+            if (g) grab(item,posx+1,posy);
+            else if (item.ToString().Equals("!!")) energy -= 10;
         }
-        if ((posy+1) < m.GetLength(1)){
-            adjList[qty] = m.readItem(posx,posy+1);
-            qty++;
+        if ((posy+1) < m.getLength(1)){
+            item = m.readItem(posx,posy+1);
+            if (g) grab(item,posx,posy+1);
+            else if (item.ToString().Equals("!!")) energy -= 10;
         }
-        for (int i = 0; i < qty; i++)
-            switch(adjList[i].ToString()){
-                case "JR":
-                case "JG":
-                case "JB":
-                Jewel j = (Jewel)m.delItem(adjList[i].getPosx(),adjList[i].getPosy());
-                totalvalue += j.getValue();
-                bag.Add(j);
-                if (j.ToString().Equals("JB")) energy += 5;
-                break;
-                case "$$":
-                energy += 3;
-                break;
-            }
         return; 
     }
     /// <summary>
-    /// This method checks Robot adjacent cells on the map for radioactive obstacle
+    /// This method grabs jewel or recharges robot
     /// </summary>
-    public void checkAdjCells(){
-        Cell[] adjList = new Cell[4];
-        int qty = 0;
-        if ((posx-1) >= 0){
-            adjList[qty] = m.readItem(posx-1,posy);
-            qty++;
+    /// <param name="item">Map's object</param>
+    /// <param name="x">Axis X</param>
+    /// <param name="y">Axis Y</param>
+    private void grab(Cell item,int x,int y){
+        switch(item.ToString()){
+            case "JR":
+            case "JG":
+            case "JB":
+                Jewel jw = (Jewel)m.delItem(x,y);
+                totalpoints += jw.getPoints();
+                bag.Add(jw);
+                if (jw.ToString().Equals("JB")) energy += 5;
+            break;
+            case "$$":
+                Obstacle obs = (Obstacle)item;
+                energy += obs.getEnergy();           
+            break;
         }
-        if ((posy-1) >= 0){
-            adjList[qty] = m.readItem(posx,posy-1);
-            qty++;
-        }        
-        if ((posx+1) < m.GetLength(0)){
-            adjList[qty] = m.readItem(posx+1,posy);
-            qty++;
-        }
-        if ((posy+1) < m.GetLength(1)){
-            adjList[qty] = m.readItem(posx,posy+1);
-            qty++;
-        }
-        for (int i = 0; i < qty; i++){
-            Console.WriteLine("Entrou");
-            if (adjList[i].ToString().Equals("!!")){
-                energy -= 10;
-            }             
-        }
-        return; 
     }
 }
